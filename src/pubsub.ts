@@ -3,9 +3,15 @@
 import EventEmitter from 'events';
 import nconf from 'nconf';
 
-let real;
-let noCluster;
-let singleHost;
+let real : EventEmitter;
+let noCluster : EventEmitter;
+let singleHost : EventEmitter;
+
+interface Message {
+    action: string,
+    event : string | symbol,
+    data: unknown
+}
 
 function get() {
     if (real) {
@@ -31,14 +37,14 @@ function get() {
         if (!process.send) {
             singleHost.publish = singleHost.emit.bind(singleHost);
         } else {
-            singleHost.publish = function (event, data) {
+            singleHost.publish = function (event : string | symbol, data : unknown) {
                 process.send({
                     action: 'pubsub',
                     event: event,
                     data: data,
                 });
             };
-            process.on('message', (message) => {
+            process.on('message', (message : Message) => {
                 if (message && typeof message === 'object' && message.action === 'pubsub') {
                     singleHost.emit(message.event, message.data);
                 }

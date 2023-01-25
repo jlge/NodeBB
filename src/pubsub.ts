@@ -1,11 +1,9 @@
-'use strict';
-
 import EventEmitter from 'events';
 import nconf from 'nconf';
 
-let real : EventEmitter;
-let noCluster : EventEmitter;
-let singleHost : EventEmitter;
+let real;
+let noCluster;
+let singleHost;
 
 interface Message {
     action: string,
@@ -18,7 +16,7 @@ function get() {
         return real;
     }
 
-    let pubsub;
+    let pubsub : EventEmitter;
 
     if (!nconf.get('isCluster')) {
         if (noCluster) {
@@ -61,17 +59,18 @@ function get() {
     return pubsub;
 }
 
-module.exports = {
-    publish: function (event, data) {
-        get().publish(event, data);
-    },
-    on: function (event, callback) {
-        get().on(event, callback);
-    },
-    removeAllListeners: function (event) {
-        get().removeAllListeners(event);
-    },
-    reset: function () {
-        real = null;
-    },
-};
+export function publish(event : string | symbol, data: unknown) {
+    get().publish(event, data);
+}
+
+export function on(event, callback) {
+    get().on(event, callback);
+}
+
+export function removeAllListeners(event) {
+    get().removeAllListeners(event);
+}
+
+export function reset() {
+    real = null;
+}

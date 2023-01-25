@@ -1,8 +1,9 @@
-'use strict';
+"use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.reset = exports.removeAllListeners = exports.on = exports.publish = void 0;
 const events_1 = __importDefault(require("events"));
 const nconf_1 = __importDefault(require("nconf"));
 let real;
@@ -56,17 +57,19 @@ function get() {
     real = pubsub;
     return pubsub;
 }
-module.exports = {
-    publish: function (event, data) {
-        get().publish(event, data);
-    },
-    on: function (event, callback) {
-        get().on(event, callback);
-    },
-    removeAllListeners: function (event) {
-        get().removeAllListeners(event);
-    },
-    reset: function () {
-        real = null;
-    },
-};
+function publish(event, data) {
+    get().publish(event, data);
+}
+exports.publish = publish;
+function on(event, callback) {
+    get().on(event, callback);
+}
+exports.on = on;
+function removeAllListeners(event) {
+    get().removeAllListeners(event);
+}
+exports.removeAllListeners = removeAllListeners;
+function reset() {
+    real = null;
+}
+exports.reset = reset;

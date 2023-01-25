@@ -1,36 +1,37 @@
 'use strict';
-
-const EventEmitter = require('events');
-const nconf = require('nconf');
-
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const events_1 = __importDefault(require("events"));
+const nconf_1 = __importDefault(require("nconf"));
 let real;
 let noCluster;
 let singleHost;
-
 function get() {
     if (real) {
         return real;
     }
-
     let pubsub;
-
-    if (!nconf.get('isCluster')) {
+    if (!nconf_1.default.get('isCluster')) {
         if (noCluster) {
             real = noCluster;
             return real;
         }
-        noCluster = new EventEmitter();
+        noCluster = new events_1.default();
         noCluster.publish = noCluster.emit.bind(noCluster);
         pubsub = noCluster;
-    } else if (nconf.get('singleHostCluster')) {
+    }
+    else if (nconf_1.default.get('singleHostCluster')) {
         if (singleHost) {
             real = singleHost;
             return real;
         }
-        singleHost = new EventEmitter();
+        singleHost = new events_1.default();
         if (!process.send) {
             singleHost.publish = singleHost.emit.bind(singleHost);
-        } else {
+        }
+        else {
             singleHost.publish = function (event, data) {
                 process.send({
                     action: 'pubsub',
@@ -45,16 +46,16 @@ function get() {
             });
         }
         pubsub = singleHost;
-    } else if (nconf.get('redis')) {
+    }
+    else if (nconf_1.default.get('redis')) {
         pubsub = require('./database/redis/pubsub');
-    } else {
+    }
+    else {
         throw new Error('[[error:redis-required-for-pubsub]]');
     }
-
     real = pubsub;
     return pubsub;
 }
-
 module.exports = {
     publish: function (event, data) {
         get().publish(event, data);
